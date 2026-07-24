@@ -25,11 +25,13 @@ artifact_router = APIRouter(
 async def publish_artifact_endpoint(
     file: UploadFile = File(...),
     title: str | None = Form(default=None),
+    password: str | None = Form(default=None)
 ):
 
     return await publish_artifact(
         file=file,
         title=title,
+        password=password,
     )
 
 

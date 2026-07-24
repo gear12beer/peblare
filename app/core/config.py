@@ -27,3 +27,11 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
+
+CONTENT_TYPES = {
+    ".html": "text/html",
+    ".md": "text/markdown",
+    ".json": "application/json",
+    ".csv": "text/csv",
+    ".txt": "text/plain",
+}

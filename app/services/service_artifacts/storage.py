@@ -50,3 +50,18 @@ def upload_file(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to upload artifact.",
         )
+
+def delete_file(storage_path: str) -> None:
+    try:
+        supabase.storage.from_(SUPABASE_BUCKET).remove([storage_path])
+
+        logger.info(
+            "Deleted orphaned artifact | %s",
+            storage_path,
+        )
+
+    except Exception:
+        logger.exception(
+            "Failed to delete orphaned artifact | %s",
+            storage_path,
+        )
