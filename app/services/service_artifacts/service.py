@@ -1,18 +1,15 @@
-from datetime import datetime, UTC
 from pathlib import Path
 from uuid import uuid4
-import secrets
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile 
 
-from app.core.enums import ArtifactType
 from app.core.logger import get_logger
 from app.services.service_artifacts.validator import (
     validate_extension,
     validate_file,
 )
 from app.services.service_artifacts.slug import generate_slug
-from app.services.service_artifacts.storage import save_file
+from app.services.service_artifacts.storage import upload_file
 from app.services.service_artifacts.response import build_publish_response
 
 logger = get_logger(__name__)
@@ -23,6 +20,8 @@ async def publish_artifact(
     file: UploadFile,
     title: str | None = None,
 ):
+    extension = Path(file.filename).suffix.lower()
+
     artifact_type = validate_extension(file.filename)
 
     content = await validate_file(file)
@@ -31,17 +30,17 @@ async def publish_artifact(
 
     slug = generate_slug()
 
-    save_file(
-        artifact_id=artifact_id,
-        extension=Path(file.filename).suffix.lower(),
-        artifact_type=artifact_type.value,
+    upload_result = upload_file(
         content=content,
+        artifact_id=artifact_id,
+        extension=extension,
+        artifact_type=artifact_type.value,
     )
 
     logger.info(
-        "Artifact published | slug=%s filename=%s",
+        "Artifact published | slug=%s storage=%s",
         slug,
-        file.filename,
+        upload_result,
     )
 
     return build_publish_response(
@@ -51,4 +50,3 @@ async def publish_artifact(
         filename=file.filename,
         size_bytes=len(content),
     )
-

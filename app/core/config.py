@@ -19,6 +19,11 @@ ALLOWED_EXTENSIONS = {
 #    ".txt": ArtifactType.TEXT,
 }
 
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 ARTIFACT_BASE_URL = os.getenv("ARTIFACT_BASE_URL","http://localhost:3000")
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")

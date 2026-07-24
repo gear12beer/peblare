@@ -1,24 +1,52 @@
-from pathlib import Path
 from uuid import UUID
 
-UPLOAD_DIR = Path("uploads")
+from fastapi import HTTPException, status
+
+from app.core.config import SUPABASE_BUCKET
+from app.core.logger import get_logger
+from app.core.supabase import supabase
+
+logger = get_logger(__name__)
+
+CONTENT_TYPES = {
+    ".html": "text/html",
+    ".md": "text/markdown",
+    ".json": "application/json",
+    ".csv": "text/csv",
+    ".txt": "text/plain",
+}
 
 
-def save_file(
+def upload_file(
     *,
+    content: bytes,
     artifact_id: UUID,
     extension: str,
     artifact_type: str,
-    content: bytes,
-) -> Path:
+) -> str:
 
-    storage_dir = UPLOAD_DIR / artifact_type
+    storage_path = f"static/{artifact_type}/{artifact_id}{extension}"
 
-    storage_dir.mkdir(parents=True, exist_ok=True)
+    try:
 
-    path = storage_dir / f"{artifact_id}{extension}"
+        supabase.storage.from_(SUPABASE_BUCKET).upload(
+            path=storage_path,
+            file=content,
+            file_options={
+                "content-type": CONTENT_TYPES[extension],
+                "upsert": "false",
+            },
+        )
 
-    with open(path, "wb") as fp:
-        fp.write(content)
+        logger.info("Uploaded %s", storage_path)
 
-    return path
+        return storage_path
+
+    except Exception as exc:
+
+        logger.exception(exc)
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to upload artifact.",
+        )
