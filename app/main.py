@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.health.router import health_router
+from app.api.artifacts.router import artifact_router
 
 from app.middleware.middleware import (
     request_context_middleware,
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
 
 
     app.include_router(health_router)
+    app.include_router(artifact_router)
 
     return app 
 
